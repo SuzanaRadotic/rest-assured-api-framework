@@ -1,20 +1,43 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LoginResponse {
 
-    private String access_token;
-    private String token_type;
-    private Integer expires_in;
+    @JsonProperty("access_token")
+    private String accessToken;
 
-    public String getAccess_token() {
-        return access_token;
+    @JsonProperty("token_type")
+    private String tokenType;
+
+    @JsonProperty("expires_in")
+    private Integer expiresIn;
+
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public String getToken_type() {
-        return token_type;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
-    public Integer getExpires_in() {
-        return expires_in;
+    public String getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
+    }
+
+    public Integer getExpiresIn() {
+        return expiresIn;
+    }
+
+    public void setExpiresIn(Integer expiresIn) {
+        this.expiresIn = expiresIn;
     }
 }

@@ -33,9 +33,8 @@ public class AuthenticationTests extends BaseTest {
         LoginResponse loginResponse =
                 response.as(LoginResponse.class);
 
-        Assert.assertNotNull(loginResponse.getAccess_token(), "Access token should not be null");
-
-        Assert.assertEquals(loginResponse.getToken_type(), "bearer");
+        Assert.assertNotNull(loginResponse.getAccessToken(), "Access token should not be null");
+                Assert.assertEquals(loginResponse.getTokenType(), "bearer");
 
     }
 
@@ -63,7 +62,7 @@ public class AuthenticationTests extends BaseTest {
                 loginApiResponse.as(LoginResponse.class);
 
         Assert.assertNotNull(
-                login.getAccess_token(),
+                        login.getAccessToken(),
                 "Access token should not be null"
         );
 
@@ -72,7 +71,7 @@ public class AuthenticationTests extends BaseTest {
                 given()
                         .header(
                                 "Authorization",
-                                "Bearer " + login.getAccess_token()
+                                "Bearer " + login.getAccessToken()
                         )
                         .when()
                         .get("/users/me");

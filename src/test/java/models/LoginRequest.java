@@ -1,11 +1,23 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LoginRequest {
 
+    @JsonProperty("email")
     private String email;
+
+    @JsonProperty("password")
     private String password;
 
-    public LoginRequest(String email, String password){
+    public LoginRequest() {
+    }
+
+    public LoginRequest(String email, String password) {
         this.email = email;
         this.password = password;
     }
@@ -14,10 +26,15 @@ public class LoginRequest {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getPassword() {
         return password;
     }
 
-
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

@@ -161,8 +161,8 @@ public class CategoriesTests extends BaseTest {
         );
 
         Assert.assertEquals(
-                categoryResponse.getParent_id(),
-                request.getParent_id(),
+                        categoryResponse.getParentId(),
+                        request.getParentId(),
                 "Parent id should match request"
         );
     }
@@ -170,11 +170,9 @@ public class CategoriesTests extends BaseTest {
 
 
     @Test
-    public void shouldReturn422WhenCreatingCategoryWithInvalidData(){
-        CategoryRequest request =
-                new CategoryRequest(null,
-                        "invalid-slug",
-                        null);
+        public void shouldReturn422WhenCreatingCategoryWithInvalidData() {
+            CategoryRequest request = new CategoryRequest();
+            request.setSlug("invalid-slug");
 
 
         given()
@@ -242,12 +240,9 @@ public class CategoriesTests extends BaseTest {
                         .getInt("id");
 
 
-        CategoryRequest updateRequest =
-                new CategoryRequest(
-                        "Updated Category",
-                        "updated-category",
-                        null
-                );
+        CategoryRequest updateRequest = new CategoryRequest();
+                updateRequest.setName("Updated Category");
+                updateRequest.setSlug("updated-category");
 
 
         Response updateResponse =
