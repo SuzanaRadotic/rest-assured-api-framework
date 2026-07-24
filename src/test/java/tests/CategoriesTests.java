@@ -240,9 +240,10 @@ public class CategoriesTests extends BaseTest {
                         .getInt("id");
 
 
-        CategoryRequest updateRequest = new CategoryRequest();
-                updateRequest.setName("Updated Category");
-                updateRequest.setSlug("updated-category");
+        CategoryRequest updateRequest =
+                TestDataGenerator.createCategoryRequest(null);
+
+        updateRequest.setName("Updated Category");
 
 
         Response updateResponse =
@@ -251,6 +252,8 @@ public class CategoriesTests extends BaseTest {
                         .body(updateRequest)
                         .when()
                         .put("/categories/" + categoryId);
+
+        System.out.println(updateResponse.asPrettyString());
 
 
         updateResponse.then()
@@ -280,7 +283,7 @@ public class CategoriesTests extends BaseTest {
 
         Assert.assertEquals(
                 getResponse.jsonPath().getString("slug"),
-                "updated-category"
+                updateRequest.getSlug()
         );
     }
 
