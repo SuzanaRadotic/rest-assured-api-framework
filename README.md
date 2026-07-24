@@ -2,6 +2,17 @@
 
 Automated API test suite for [Practice Software Testing API](https://api-v4.practicesoftwaretesting.com) built with RestAssured and TestNG.
 
+## What is covered
+
+The framework currently automates testing of the following API areas:
+
+- Authentication (login)
+- Category management (CRUD operations)
+- Request and response validation
+- Positive and negative API scenarios
+- JSON serialization/deserialization using Jackson
+- Test data generation for unique test resources
+
 ## Technology Stack
 
 - **Java 17**
