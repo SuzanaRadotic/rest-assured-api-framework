@@ -1,6 +1,6 @@
 # RestAssured API Test Framework
 
-Automated API test suite for [Practice Software Testing API](https://api-v4.practicesoftwaretesting.com) built with RestAssured and TestNG.
+Automated API test suite for [Practice Software Testing API](https://api-v4.practicesoftwaretesting.com), built with RestAssured and TestNG.
 
 ## What is covered
 
@@ -26,19 +26,23 @@ The framework currently automates testing of the following API areas:
 ```
 src/test/java
 ├── base/
-│   └── BaseTest.java          # Base test class with RestAssured setup
+│   └── BaseTest.java                 # Base test class with RestAssured setup
+│
 ├── models/
-│   ├── CategoryRequest.java   # Category create/update request DTO
-│   ├── CategoryResponse.java  # Category response DTO
-│   ├── LoginRequest.java      # Login request DTO
-│   └── LoginResponse.java     # Login response DTO
+│   ├── CategoryRequest.java          # Category create/update request DTO
+│   ├── CategoryResponse.java         # Category response DTO
+│   ├── LoginRequest.java             # Login request DTO
+│   └── LoginResponse.java            # Login response DTO
+│
 ├── tests/
-│   ├── AuthenticationTests.java  # Auth endpoint tests
-│   └── CategoriesTests.java      # Category CRUD tests
+│   ├── AuthenticationTests.java      # Authentication endpoint tests
+│   └── CategoriesTests.java          # Category CRUD tests
+│
 └── utils/
-    ├── ConfigReader.java      # Configuration loader
-    ├── TestConstants.java     # Test constants (email, password)
-    └── TestDataGenerator.java # Test data generation
+    ├── AllureAttachments.java        # Allure report attachment helper
+    ├── ConfigReader.java             # Configuration loader
+    ├── TestConstants.java            # Test constants (email, password)
+    └── TestDataGenerator.java        # Test data generation
 ```
 
 ## Configuration
@@ -61,6 +65,17 @@ mvn clean test
 mvn test -Dtest=AuthenticationTests
 ```
 
-## Test Reports
+## Test Reporting
 
-TestNG reports are generated in `target/surefire-reports/`.
+The project uses Allure Report for test execution visualization.
+
+Generate report:
+
+mvn allure:serve
+
+The report contains:
+- test execution details
+- request and response payloads
+- API status codes
+- execution time
+- test categorization by feature and story

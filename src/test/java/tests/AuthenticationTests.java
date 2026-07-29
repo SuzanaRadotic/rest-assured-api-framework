@@ -10,7 +10,11 @@ import org.testng.annotations.Test;
 import utils.TestConstants;
 
 import static io.restassured.RestAssured.given;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 
+@Epic("Practice Software Testing API")
+@Feature("Authentication")
 public class AuthenticationTests extends BaseTest {
 
     @Test
