@@ -63,15 +63,16 @@ mvn clean test
 
 # Run specific test class
 mvn test -Dtest=AuthenticationTests
+
+mvn test -Dtest=CategoriesTests
 ```
 
 ## Test Reporting
 
 The project uses Allure Report for test execution visualization.
 
-Generate report:
-
-mvn allure:serve
+Generate and open Allure report:
+mvn io.qameta.allure:allure-maven:serve
 
 The report contains:
 - test execution details
