@@ -1,0 +1,123 @@
+package tests;
+
+import base.BaseTest;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import models.LoginRequest;
+import models.LoginResponse;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import utils.AllureAttachments;
+import utils.TestConstants;
+
+import static io.restassured.RestAssured.given;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+
+@Epic("Practice Software Testing API")
+@Feature("Authentication")
+public class AuthenticationTests extends BaseTest {
+
+    @Test
+    public void shouldReturnAccessTokenWhenLoggingIn() {
+
+        LoginRequest loginRequest = new LoginRequest(
+                TestConstants.CUSTOMER_EMAIL,
+                TestConstants.CUSTOMER_PASSWORD
+        );
+
+        AllureAttachments.attachJson(
+                "Login request",
+                """
+                {
+                  "email": "%s",
+                  "password": "***"
+                }
+                """.formatted(
+                        loginRequest.getEmail()
+                )
+        );
+
+        Response response =
+                given()
+                        .contentType(ContentType.JSON)
+                        .body(loginRequest)
+                        .when()
+                        .post("/users/login");
+
+        response.then()
+                .statusCode(200);
+
+        LoginResponse loginResponse =
+                response.as(LoginResponse.class);
+
+        Assert.assertNotNull(
+                loginResponse.getAccessToken(),
+                "Access token should not be null"
+        );
+
+        Assert.assertEquals(
+                loginResponse.getTokenType(),
+                "bearer"
+        );
+    }
+
+    @Test
+    public void shouldReturnCurrentUserWhenAuthenticated() {
+
+        LoginRequest loginRequest =
+                new LoginRequest(
+                        TestConstants.CUSTOMER_EMAIL,
+                        TestConstants.CUSTOMER_PASSWORD
+                );
+
+        AllureAttachments.attachJson(
+                "Login request",
+                """
+                {
+                  "email": "%s",
+                  "password": "***"
+                }
+                """.formatted(
+                        loginRequest.getEmail()
+                )
+        );
+
+        Response loginApiResponse =
+                given()
+                        .contentType(ContentType.JSON)
+                        .body(loginRequest)
+                        .when()
+                        .post("/users/login");
+
+        loginApiResponse.then()
+                .statusCode(200);
+
+        LoginResponse login =
+                loginApiResponse.as(LoginResponse.class);
+
+        Assert.assertNotNull(
+                login.getAccessToken(),
+                "Access token should not be null"
+        );
+
+        Response userResponse =
+                given()
+                        .header(
+                                "Authorization",
+                                "Bearer " + login.getAccessToken()
+                        )
+                        .when()
+                        .get("/users/me");
+
+        AllureAttachments.attachResponse(userResponse);
+
+        userResponse.then()
+                .statusCode(200);
+
+        Assert.assertEquals(
+                userResponse.jsonPath().getString("email"),
+                TestConstants.CUSTOMER_EMAIL
+        );
+    }
+}
