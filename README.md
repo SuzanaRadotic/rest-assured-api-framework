@@ -20,6 +20,8 @@ The framework currently automates testing of the following API areas:
 - **RestAssured 6.x** (API testing)
 - **TestNG 7.x** (test runner)
 - **Jackson** (JSON serialization/deserialization)
+- **Allure Report** (test reporting)
+- **GitHub Actions** (CI)
 
 ## Project Structure
 
@@ -49,11 +51,9 @@ src/test/java
 
 The API base URL is configured in `src/test/resources/config.properties`:
 
-```properties
 base.url=https://api-v4.practicesoftwaretesting.com
-```
 
-To run against a different environment, modify this file directly.
+Test credentials are provided through environment variables and are not stored in the repository.
 
 ## Running Tests
 
@@ -71,7 +71,7 @@ mvn test -Dtest=CategoriesTests
 
 The project uses Allure Report for test execution visualization.
 
-Generate and open Allure report:
+Generate and open Allure report locally:
 mvn io.qameta.allure:allure-maven:serve
 
 The report contains:
@@ -80,3 +80,16 @@ The report contains:
 - API status codes
 - execution time
 - test categorization by feature and story
+
+## Continuous Integration
+
+GitHub Actions automatically runs the test suite on pushes and pull requests targeting master.
+
+The CI pipeline:
+
+- Sets up Java 17 and Maven
+- Runs the automated API tests
+- Generates the Allure report
+- Uploads the report as a GitHub Actions artifact
+
+**13 automated API tests are currently included in the suite.**
