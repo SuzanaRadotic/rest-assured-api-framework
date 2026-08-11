@@ -29,3 +29,14 @@ jobs:
         env:
           CUSTOMER_EMAIL: ${{ secrets.CUSTOMER_EMAIL }}
           CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}
+
+      - name: Generate Allure report
+        if: always()
+        run: mvn io.qameta.allure:allure-maven:report
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: target/site/allure-maven-plugin
