@@ -43,7 +43,11 @@ public class ConfigReader {
     }
 
     public static String getCustomerEmail() {
-        String email = dotenv.get("CUSTOMER_EMAIL");
+        String email = System.getenv("CUSTOMER_EMAIL");
+
+        if (email == null || email.isBlank()) {
+            email = dotenv.get("CUSTOMER_EMAIL");
+        }
 
         if (email == null || email.isBlank()) {
             throw new RuntimeException(
@@ -55,7 +59,11 @@ public class ConfigReader {
     }
 
     public static String getCustomerPassword() {
-        String password = dotenv.get("CUSTOMER_PASSWORD");
+        String password = System.getenv("CUSTOMER_PASSWORD");
+
+        if (password == null || password.isBlank()) {
+            password = dotenv.get("CUSTOMER_PASSWORD");
+        }
 
         if (password == null || password.isBlank()) {
             throw new RuntimeException(
