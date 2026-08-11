@@ -1,6 +1,6 @@
 # RestAssured API Test Framework
 
-Automated API test suite for [Practice Software Testing API](https://api-v4.practicesoftwaretesting.com), built with RestAssured and TestNG.
+Automated API test suite for Automated API test suite for [Practice Software Testing API](https://api.practicesoftwaretesting.com/api/documentation), built with RestAssured and TestNG, built with RestAssured and TestNG.
 
 ## What is covered
 
@@ -51,7 +51,7 @@ src/test/java
 
 The API base URL is configured in `src/test/resources/config.properties`:
 
-base.url=https://api-v4.practicesoftwaretesting.com
+`base.url=https://api-v4.practicesoftwaretesting.com`
 
 Test credentials are provided through environment variables and are not stored in the repository.
 
