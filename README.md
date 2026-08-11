@@ -1,6 +1,6 @@
 # RestAssured API Test Framework
 
-Automated API test suite for Automated API test suite for [Practice Software Testing API](https://api.practicesoftwaretesting.com/api/documentation), built with RestAssured and TestNG, built with RestAssured and TestNG.
+Automated API test suite for Automated API test suite for [Practice Software Testing API](https://api.practicesoftwaretesting.com/api/documentation), built with RestAssured and TestNG.
 
 ## What is covered
 
