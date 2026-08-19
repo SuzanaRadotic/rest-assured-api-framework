@@ -75,11 +75,12 @@ Generate and open Allure report locally:
 mvn io.qameta.allure:allure-maven:serve
 
 The report contains:
-- test execution details
-- request and response payloads
+- Test execution details
+- Request and response payloads
 - API status codes
-- execution time
-- test categorization by feature and story
+- Execution time
+- Test categorization by feature and story
+- Environment information
 
 ## Continuous Integration
 
@@ -91,5 +92,7 @@ The CI pipeline:
 - Runs the automated API tests
 - Generates the Allure report
 - Uploads the report as a GitHub Actions artifact
+- Publishes the Allure report to GitHub Pages after runs on `master`
+- Supports manual workflow execution through GitHub Actions
 
 **13 automated API tests are currently included in the suite.**
