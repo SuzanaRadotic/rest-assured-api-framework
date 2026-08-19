@@ -10,6 +10,11 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -35,9 +40,32 @@ jobs:
         if: always()
         run: mvn io.qameta.allure:allure-maven:report
 
-      - name: Upload Allure report
+      - name: Upload Allure report artifact
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: allure-report
           path: target/site/allure-maven-plugin
+
+      - name: Setup GitHub Pages
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Allure report to Pages
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: target/site/allure-maven-plugin
+
+  deploy:
+    needs: test
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/master' && needs.test.result != 'cancelled'
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Deploy Allure report
+        uses: actions/deploy-pages@v4
