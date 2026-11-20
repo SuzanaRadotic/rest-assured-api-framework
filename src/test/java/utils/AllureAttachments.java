@@ -1,7 +1,6 @@
 package utils;
 
 import io.qameta.allure.Allure;
-import io.restassured.response.Response;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -30,24 +29,6 @@ public class AllureAttachments {
                         content.getBytes(StandardCharsets.UTF_8)
                 ),
                 ".txt"
-        );
-    }
-
-    public static void attachResponse(Response response) {
-
-        attachJson(
-                "Response body",
-                response.asPrettyString()
-        );
-
-        attachText(
-                "Response status code",
-                String.valueOf(response.statusCode())
-        );
-
-        attachText(
-                "Response time",
-                response.time() + " ms"
         );
     }
 }

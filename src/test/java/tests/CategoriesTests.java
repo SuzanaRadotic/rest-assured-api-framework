@@ -1,26 +1,22 @@
 package tests;
-import base.BaseTest;
 
+import base.BaseTest;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
-import io.restassured.http.ContentType;
+import io.restassured.http.Method;
 import io.restassured.response.Response;
 import models.CategoryRequest;
 import models.CategoryResponse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import utils.AllureAttachments;
 import utils.TestDataGenerator;
 
 import java.util.List;
 
-import static io.restassured.RestAssured.given;
-import io.qameta.allure.Epic;
-import io.qameta.allure.Feature;
-
 @Epic("Practice Software Testing API")
 @Feature("Categories")
 public class CategoriesTests extends BaseTest {
-
 
     // =======================
     // GET /categories
@@ -29,38 +25,30 @@ public class CategoriesTests extends BaseTest {
     @Test
     public void shouldReturn200WhenGettingCategories() {
 
-        Response response =
-                given()
-                        .when()
-                        .get("/categories");
+        Response response = categories.getAll();
 
         response.then()
                 .statusCode(200);
-
     }
 
     @Story("GET /categories")
     @Test
     public void shouldReturnCategoriesWithValidData() {
-        Response response = given()
-                            .when()
-                            .get("/categories");
 
-         AllureAttachments.attachResponse(response);
+        Response response = categories.getAll();
 
         // Get response as list of categories
-        List<CategoryResponse> categories =
+        List<CategoryResponse> categoryList =
                 response.jsonPath().getList("$", CategoryResponse.class);
-
 
         // Verify response is not empty
         Assert.assertFalse(
-                categories.isEmpty(),
+                categoryList.isEmpty(),
                 "Categories response should not be empty"
         );
 
         // Validate each category
-        for (CategoryResponse category : categories) {
+        for (CategoryResponse category : categoryList) {
 
             Assert.assertNotNull(
                     category.getId(),
@@ -81,69 +69,46 @@ public class CategoriesTests extends BaseTest {
 
     @Story("GET /categories")
     @Test
-    public void shouldReturn404WhenResourceIsNotFound(){
+    public void shouldReturn404WhenResourceIsNotFound() {
 
-        Response response =
-                given()
-                        .when()
-                        .get("/category");
-
-        AllureAttachments.attachResponse(response);
+        Response response = categories.sendRaw(Method.GET, "/category");
 
         response.then()
                 .statusCode(404);
-
     }
 
     @Story("GET /categories")
     @Test
     public void shouldNotAllowPutMethodOnCategoriesEndpoint() {
 
-        Response response =
-                given()
-                        .when()
-                        .put("/categories");
-
-        AllureAttachments.attachResponse(response);
+        Response response = categories.sendRaw(Method.PUT, "/categories");
 
         response.then()
                 .statusCode(405);
-
     }
 
     @Story("GET /categories")
     @Test
     public void shouldNotAllowPatchMethodOnCategoriesEndpoint() {
 
-        Response response =
-                given()
-                        .when()
-                        .patch("/categories");
-
-        AllureAttachments.attachResponse(response);
+        Response response = categories.sendRaw(Method.PATCH, "/categories");
 
         response.then()
                 .statusCode(405);
-
     }
-
 
     // =======================
     // POST /categories
     // =======================
     @Story("POST /categories")
     @Test
-    public void shouldReturn201WhenCreatingCategory(){
+    public void shouldReturn201WhenCreatingCategory() {
 
         CategoryRequest request =
                 TestDataGenerator.createCategoryRequest(null);
 
-        Response response =
-                given()
-                        .contentType(ContentType.JSON)
-                        .body(request)
-                        .when()
-                        .post("/categories");
+        Response response = categories.create(request);
+        trackCreatedCategory(response);
 
         response.then().statusCode(201);
 
@@ -157,29 +122,8 @@ public class CategoriesTests extends BaseTest {
         CategoryRequest request =
                 TestDataGenerator.createCategoryRequest(null);
 
-        AllureAttachments.attachJson(
-                "Create category request",
-                """
-                {
-                  "name": "%s",
-                  "slug": "%s",
-                  "parentId": %s
-                }
-                """.formatted(
-                        request.getName(),
-                        request.getSlug(),
-                        request.getParentId()
-                )
-        );
-
-        Response response =
-                given()
-                        .contentType(ContentType.JSON)
-                        .body(request)
-                        .when()
-                        .post("/categories");
-
-        AllureAttachments.attachResponse(response);
+        Response response = categories.create(request);
+        trackCreatedCategory(response);
 
         response.then().statusCode(201);
 
@@ -205,74 +149,40 @@ public class CategoriesTests extends BaseTest {
         );
 
         Assert.assertEquals(
-                        categoryResponse.getParentId(),
-                        request.getParentId(),
+                categoryResponse.getParentId(),
+                request.getParentId(),
                 "Parent id should match request"
         );
     }
 
-
     @Story("POST /categories")
     @Test
-        public void shouldReturn422WhenCreatingCategoryWithInvalidData() {
+    public void shouldReturn422WhenCreatingCategoryWithInvalidData() {
 
         CategoryRequest request = new CategoryRequest();
         request.setSlug("invalid-slug");
 
-        Response response =
-                given()
-                        .contentType(ContentType.JSON)
-                        .body(request)
-                        .when()
-                        .post("/categories");
-
-        AllureAttachments.attachJson(
-                "Create invalid category request",
-                """
-                {
-                  "slug": "%s"
-                }
-                """.formatted(
-                       request.getSlug()
-                )
-        );
-
-        AllureAttachments.attachResponse(response);
+        Response response = categories.create(request);
+        // safety net: if the API wrongly accepts invalid data, the category is still removed
+        trackCreatedCategory(response);
 
         response.then().statusCode(422);
     }
 
     @Story("POST /categories")
     @Test
-    public void shouldReturn409WhenCreatingCategoryWithExistingSlug(){
+    public void shouldReturn409WhenCreatingCategoryWithExistingSlug() {
 
         CategoryRequest request =
                 TestDataGenerator.createCategoryRequest(null);
 
+        // Arrange: the first category is created (and asserted) by the helper
+        createCategoryForTest(request);
 
-        Response firstResponse =
-                given()
-                        .contentType(ContentType.JSON)
-                        .body(request)
-                        .when()
-                        .post("/categories");
+        Response duplicateResponse = categories.create(request);
+        trackCreatedCategory(duplicateResponse);
 
-        AllureAttachments.attachResponse(firstResponse);
-
-        firstResponse.then()
-                .statusCode(201);
-
-        Response response =
-                given()
-                        .contentType(ContentType.JSON)
-                        .body(request)
-                        .when()
-                        .post("/categories");
-
-        AllureAttachments.attachResponse(response);
-
-        response.then().statusCode(409);
-
+        duplicateResponse.then().statusCode(409);
     }
 
     // ==============================
@@ -281,98 +191,27 @@ public class CategoriesTests extends BaseTest {
 
     @Story("PUT /categories/{categoryId}")
     @Test
-    public void shouldUpdateCategorySuccessfully(){
+    public void shouldUpdateCategorySuccessfully() {
 
-        CategoryRequest createRequest =
-                TestDataGenerator.createCategoryRequest(null);
-
-
-        Response createResponse =
-                given()
-                        .contentType(ContentType.JSON)
-                        .body(createRequest)
-                        .when()
-                        .post("/categories");
-
-        AllureAttachments.attachJson(
-                "Create category request",
-                """
-                {
-                  "name": "%s",
-                  "slug": "%s",
-                  "parentId": %s
-                }
-                """.formatted(
-                        createRequest.getName(),
-                        createRequest.getSlug(),
-                        createRequest.getParentId()
-                )
+        int categoryId = createCategoryForTest(
+                TestDataGenerator.createCategoryRequest(null)
         );
-
-        AllureAttachments.attachResponse(createResponse);
-
-
-        createResponse.then()
-                .statusCode(201);
-
-
-        int categoryId =
-                createResponse.jsonPath()
-                        .getInt("id");
-
 
         CategoryRequest updateRequest =
-                TestDataGenerator.createCategoryRequest(null);
-
-        String updatedName = "Updated Category_" + System.currentTimeMillis();
-
-        String updatedSlug =
-                updatedName.toLowerCase()
-                        .replace(" ", "-");
-
-        updateRequest.setName(updatedName);
-        updateRequest.setSlug(updatedSlug);
-
+                TestDataGenerator.createUpdatedCategoryRequest(null);
 
         Response updateResponse =
-                given()
-                        .contentType(ContentType.JSON)
-                        .body(updateRequest)
-                        .when()
-                        .put("/categories/" + categoryId);
-
-        AllureAttachments.attachJson(
-                "Update category request",
-                """
-                {
-                  "name": "%s",
-                  "slug": "%s",
-                  "parentId": %s
-                }
-                """.formatted(
-                        updateRequest.getName(),
-                        updateRequest.getSlug(),
-                        updateRequest.getParentId()
-                )
-        );
-
-        AllureAttachments.attachResponse(updateResponse);
+                categories.update(categoryId, updateRequest);
 
         updateResponse.then()
                 .statusCode(200);
-
 
         Assert.assertTrue(
                 updateResponse.jsonPath().getBoolean("success")
         );
 
         // Verify update through GET
-        Response getResponse =
-                given()
-                        .when()
-                        .get("/categories/tree/" + categoryId);
-
-        AllureAttachments.attachResponse(getResponse);
+        Response getResponse = categories.getTree(categoryId);
 
         getResponse.then()
                 .statusCode(200);
@@ -398,60 +237,19 @@ public class CategoriesTests extends BaseTest {
     @Test
     public void shouldDeleteCategorySuccessfully() {
 
-        // Create category
-        CategoryRequest request =
-                TestDataGenerator.createCategoryRequest(null);
-
-        AllureAttachments.attachJson(
-                "Create category request",
-                """
-                {
-                  "name": "%s",
-                  "slug": "%s",
-                  "parentId": %s
-                }
-                """.formatted(
-                        request.getName(),
-                        request.getSlug(),
-                        request.getParentId()
-                )
+        // Arrange: create category
+        int categoryId = createCategoryForTest(
+                TestDataGenerator.createCategoryRequest(null)
         );
 
-        Response createResponse =
-                given()
-                        .contentType(ContentType.JSON)
-                        .body(request)
-                        .when()
-                        .post("/categories");
-
-        AllureAttachments.attachResponse(createResponse);
-
-        int categoryId =
-                createResponse.jsonPath()
-                        .getInt("id");
-
-
-        // Delete category
-        Response deleteResponse =
-                given()
-                        .when()
-                        .delete("/categories/" + categoryId);
-
-        AllureAttachments.attachResponse(deleteResponse);
-
-        deleteResponse.then()
+        // Act: delete category
+        categories.delete(categoryId)
+                .then()
                 .statusCode(204);
 
-
         // Verify deletion
-        Response verifyResponse =
-                given()
-                        .when()
-                        .get("/categories/tree/" + categoryId);
-
-        AllureAttachments.attachResponse(verifyResponse);
-
-        verifyResponse.then()
+        categories.getTree(categoryId)
+                .then()
                 .statusCode(404);
     }
 }
