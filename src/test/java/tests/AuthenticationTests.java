@@ -1,18 +1,13 @@
 package tests;
 
 import base.BaseTest;
-import io.restassured.http.ContentType;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import io.restassured.response.Response;
-import models.LoginRequest;
 import models.LoginResponse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import utils.AllureAttachments;
 import utils.TestConstants;
-
-import static io.restassured.RestAssured.given;
-import io.qameta.allure.Epic;
-import io.qameta.allure.Feature;
 
 @Epic("Practice Software Testing API")
 @Feature("Authentication")
@@ -21,29 +16,7 @@ public class AuthenticationTests extends BaseTest {
     @Test
     public void shouldReturnAccessTokenWhenLoggingIn() {
 
-        LoginRequest loginRequest = new LoginRequest(
-                TestConstants.CUSTOMER_EMAIL,
-                TestConstants.CUSTOMER_PASSWORD
-        );
-
-        AllureAttachments.attachJson(
-                "Login request",
-                """
-                {
-                  "email": "%s",
-                  "password": "***"
-                }
-                """.formatted(
-                        loginRequest.getEmail()
-                )
-        );
-
-        Response response =
-                given()
-                        .contentType(ContentType.JSON)
-                        .body(loginRequest)
-                        .when()
-                        .post("/users/login");
+        Response response = auth.loginAsCustomer();
 
         response.then()
                 .statusCode(200);
@@ -65,36 +38,13 @@ public class AuthenticationTests extends BaseTest {
     @Test
     public void shouldReturnCurrentUserWhenAuthenticated() {
 
-        LoginRequest loginRequest =
-                new LoginRequest(
-                        TestConstants.CUSTOMER_EMAIL,
-                        TestConstants.CUSTOMER_PASSWORD
-                );
+        Response loginResponse = auth.loginAsCustomer();
 
-        AllureAttachments.attachJson(
-                "Login request",
-                """
-                {
-                  "email": "%s",
-                  "password": "***"
-                }
-                """.formatted(
-                        loginRequest.getEmail()
-                )
-        );
-
-        Response loginApiResponse =
-                given()
-                        .contentType(ContentType.JSON)
-                        .body(loginRequest)
-                        .when()
-                        .post("/users/login");
-
-        loginApiResponse.then()
+        loginResponse.then()
                 .statusCode(200);
 
         LoginResponse login =
-                loginApiResponse.as(LoginResponse.class);
+                loginResponse.as(LoginResponse.class);
 
         Assert.assertNotNull(
                 login.getAccessToken(),
@@ -102,15 +52,7 @@ public class AuthenticationTests extends BaseTest {
         );
 
         Response userResponse =
-                given()
-                        .header(
-                                "Authorization",
-                                "Bearer " + login.getAccessToken()
-                        )
-                        .when()
-                        .get("/users/me");
-
-        AllureAttachments.attachResponse(userResponse);
+                auth.getCurrentUser(login.getAccessToken());
 
         userResponse.then()
                 .statusCode(200);

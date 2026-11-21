@@ -3,8 +3,9 @@ package utils;
 import models.CategoryRequest;
 import net.datafaker.Faker;
 
-public class TestDataGenerator {
+import java.util.UUID;
 
+public class TestDataGenerator {
 
     private static final Faker faker = new Faker();
 
@@ -19,23 +20,30 @@ public class TestDataGenerator {
             "Fasteners"
     };
 
-
     public static CategoryRequest createCategoryRequest(Integer parentId) {
-
-        String baseName = CATEGORY_NAMES[
+        String prefix = CATEGORY_NAMES[
                 faker.number().numberBetween(0, CATEGORY_NAMES.length)
-                ] + "_" + System.currentTimeMillis();
+                ];
 
+        return buildCategoryRequest(prefix, parentId);
+    }
 
-        String slug = baseName
+    public static CategoryRequest createUpdatedCategoryRequest(Integer parentId) {
+        return buildCategoryRequest("Updated Category", parentId);
+    }
+
+    private static CategoryRequest buildCategoryRequest(String prefix, Integer parentId) {
+        String name = prefix + "_" + uniqueSuffix();
+
+        String slug = name
                 .toLowerCase()
                 .replace(" ", "-");
 
+        return new CategoryRequest(name, slug, parentId);
+    }
 
-        return new CategoryRequest(
-                baseName,
-                slug,
-                parentId
-        );
+    // Random instead of System.currentTimeMillis(): no collisions if tests run in parallel
+    private static String uniqueSuffix() {
+        return UUID.randomUUID().toString().substring(0, 8);
     }
 }
